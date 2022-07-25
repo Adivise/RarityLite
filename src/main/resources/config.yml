@@ -1,0 +1,74 @@
+### RARITYLITE CONFIGURATIONS
+
+permission:
+  message: "&cYour not have permission."
+
+console:
+  message: "[RarityLite] You are not player!"
+
+info:
+  message:
+    - "&aRarityLite v1.1.5"
+    - "&r"
+    - "&c<Require> &8&l| &6[Optional]"
+    - "&a/enchanted help | to see all commands!"
+    - "&a/enchanted <rarity> [glow] | make to enchanted"
+    - "&a/enchanted list | to see all rarity"
+    - "&a/enchanted hideflags | to hide all flags (enchant, dye, unbreakable, etc.)"
+    - "&a/enchanted reload | to reload configulation"
+    - "&a"
+    - "&aExample: &e/enchanted uncommon glow"
+
+list:
+  message: "&aRarity List: common, uncommon, rare, epic, legendary, mythical, divine, special"
+
+reload:
+  message: "&aRarityLite v1.1.5 Reloaded!"
+
+hold_item:
+  message: "&cPlease hold item to make enchanted!"
+
+hideflags:
+  message: "&aSuccessfully to hide all flags!"
+
+
+### WARNING YOU CAN NOT ADD MORE RARITY | I WILL DO IT FOR ADD MORE RARITY YOU OWN IN NEXT UPDATE!
+common:
+  displayName: "&fEnchanted "
+  loreName: "&f&lCOMMON"
+  success: "&aItem Enchanted to &f&lCOMMON"
+
+uncommon:
+  displayName: "&aEnchanted "
+  loreName: "&a&lUNCOMMON"
+  success: "&aItem Enchanted to &a&lUNCOMMON"
+
+rare:
+  displayName: "&9Enchanted "
+  loreName: "&9&lRARE"
+  success: "&aItem Enchanted to &9&lRARE"
+
+epic:
+  displayName: "&5Enchanted "
+  loreName: "&5&lEPIC"
+  success: "&aItem Enchanted to &5&lEPIC"
+
+legendary:
+  displayName: "&6Enchanted "
+  loreName: "&6&lLEGENDARY"
+  success: "&aItem Enchanted to &6&lLEGENDARY"
+
+mythical:
+  displayName: "&dEnchanted "
+  loreName: "&d&lMYTHICAL"
+  success: "&aItem Enchanted to &d&lMYTHICAL"
+
+divine:
+  displayName: "&bEnchanted "
+  loreName: "&b&lDIVINE"
+  success: "&aItem Enchanted to &b&lDIVINE"
+
+special:
+  displayName: "&cEnchanted "
+  loreName: "&c&lSPECIAL"
+  success: "&aItem Enchanted to &c&lSPECIAL"
