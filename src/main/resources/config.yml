@@ -2,73 +2,123 @@
 
 permission:
   message: "&cYour not have permission."
-
 console:
   message: "[RarityLite] You are not player!"
-
 info:
   message:
-    - "&aRarityLite v1.1.5"
+    - "&aRarityLite v1.2.1"
     - "&r"
     - "&c<Require> &8&l| &6[Optional]"
     - "&a/enchanted help | to see all commands!"
     - "&a/enchanted <rarity> [glow] | make to enchanted"
+    - "&a/enchanted custom [prefix] [suffix] [lore]"
     - "&a/enchanted list | to see all rarity"
-    - "&a/enchanted hideflags | to hide all flags (enchant, dye, unbreakable, etc.)"
+    - "&a/enchanted hideflags | to hide flags (enchant, dye, unbreakable, etc.)"
+    - "&a/enchanted unbreakable | make item to unbreakable"
     - "&a/enchanted reload | to reload configulation"
     - "&a"
     - "&aExample: &e/enchanted uncommon glow"
-
+    - "&aExample: &e/enchanted custom &4Enchanted &e+1 &4&lSUPREME"
 list:
   message: "&aRarity List: common, uncommon, rare, epic, legendary, mythical, divine, special"
-
 reload:
-  message: "&aRarityLite v1.1.5 Reloaded!"
-
+  message: "&aRarityLite v1.2.1 Reloaded!"
 hold_item:
   message: "&cPlease hold item to make enchanted!"
-
-hideflags:
-  message: "&aSuccessfully to hide all flags!"
-
+hide_flags:
+  message: "&aSuccessfully to hide flags!"
+  flags:
+    - HIDE_ENCHANTS
+    - HIDE_ATTRIBUTES
+    - HIDE_DESTROYS
+    - HIDE_DYE
+    - HIDE_PLACED_ON
+    - HIDE_POTION_EFFECTS
+    - HIDE_UNBREAKABLE
+unbreakable:
+  message: "&aSuccessfully apply &9&lUNBREAKABLE"
+custom:
+  message: "&aSuccessfully make custom "
+glow:
+  message: "&aSuccessfully apply glow to item"
 
 ### WARNING YOU CAN NOT ADD MORE RARITY | I WILL DO IT FOR ADD MORE RARITY YOU OWN IN NEXT UPDATE!
 common:
-  displayName: "&fEnchanted "
-  loreName: "&f&lCOMMON"
+  prefixName: "&fEnchanted "
+  suffixName: " &r"
+  loreName:
+    - "&f&lCOMMON"
   success: "&aItem Enchanted to &f&lCOMMON"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 uncommon:
-  displayName: "&aEnchanted "
-  loreName: "&a&lUNCOMMON"
+  prefixName: "&aEnchanted "
+  suffixName: " &r"
+  loreName:
+    - "&a&lUNCOMMON"
   success: "&aItem Enchanted to &a&lUNCOMMON"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 rare:
-  displayName: "&9Enchanted "
-  loreName: "&9&lRARE"
+  prefixName: "&9Enchanted "
+  suffixName: " &r"
+  loreName:
+    - "&9&lRARE"
   success: "&aItem Enchanted to &9&lRARE"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 epic:
-  displayName: "&5Enchanted "
-  loreName: "&5&lEPIC"
+  prefixName: "&5Enchanted "
+  suffixName: " &r"
+  loreName:
+    - "&5&lEPIC"
   success: "&aItem Enchanted to &5&lEPIC"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 legendary:
-  displayName: "&6Enchanted "
-  loreName: "&6&lLEGENDARY"
+  prefixName: "&6Enchanted "
+  suffixName: " &r"
+  loreName:
+    - "&6&lLEGENDARY"
   success: "&aItem Enchanted to &6&lLEGENDARY"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 mythical:
-  displayName: "&dEnchanted "
-  loreName: "&d&lMYTHICAL"
+  prefixName: "&dEnchanted "
+  suffixName: " &r"
+  loreName:
+    - "&d&lMYTHICAL"
   success: "&aItem Enchanted to &d&lMYTHICAL"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 divine:
-  displayName: "&bEnchanted "
-  loreName: "&b&lDIVINE"
+  prefixName: "&bEnchanted "
+  suffixName: " &r"
+  loreName:
+    - "&b&lDIVINE"
   success: "&aItem Enchanted to &b&lDIVINE"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
 
 special:
-  displayName: "&cEnchanted "
-  loreName: "&c&lSPECIAL"
+  prefixName: "&cEnchanted "
+  suffixName: " &r"
+  loreName:
+    - "&c&lSPECIAL"
   success: "&aItem Enchanted to &c&lSPECIAL"
+  flags:
+    - HIDE_ENCHANTS
+  unbreakable: false
