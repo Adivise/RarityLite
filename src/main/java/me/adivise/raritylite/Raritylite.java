@@ -5,15 +5,23 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public final class Raritylite extends JavaPlugin implements Listener {
     @Override
@@ -67,8 +75,14 @@ public final class Raritylite extends JavaPlugin implements Listener {
 
                 // /enchanted list
                 if (args[0].equalsIgnoreCase("list")) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("list.message")));
+                    // get all rarity in config
+                    ArrayList<String> rarity = new ArrayList<String>();
+                    for (String r : this.getConfig().getConfigurationSection("rarity").getKeys(false)) {
+                        rarity.add(r);
+                    }
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                            this.getConfig().getString("list.message").replace("%rarity%",
+                                    String.join(", ", rarity))));
                     return true;
                 }
 
@@ -122,317 +136,334 @@ public final class Raritylite extends JavaPlugin implements Listener {
                             this.getConfig().getString("glow.message")));
                 }
 
-                // CUSTOM RARITY!
-                if (args[0].equalsIgnoreCase("custom")) {
-                    ItemMeta m = item.getItemMeta();
+                // Get all rarity in config
+                for (String rarity : this.getConfig().getConfigurationSection("rarity").getKeys(false)) {
+                    if (args[0].equalsIgnoreCase(rarity)) {
+                        ItemMeta m = item.getItemMeta();
+                        // DISPLAY ITEM NAME
+                        if (m.hasDisplayName()) {
+                            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                                    this.getConfig().getString("rarity." + rarity + ".prefixName") + m.getDisplayName() + this.getConfig().getString("rarity." + rarity + ".suffixName")));
+                        } else {
+                            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                                    this.getConfig().getString("rarity." + rarity + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("rarity." + rarity + ".suffixName")));
+                        }
 
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                args[1] + " " + m.getDisplayName() + " " + args[2]));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                args[1] + " " + item.getI18NDisplayName() + " " + args[2]));
-                    }
+                        // DISPLAY ITEM LORE
+                        ArrayList<String> lore = new ArrayList<String>();
+                        for (String msg : this.getConfig().getStringList("rarity." + rarity + ".loreName")) {
+                            lore.add(ChatColor.translateAlternateColorCodes('&', msg));
+                        }
+                        m.setLore(lore);
 
-                    m.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', args[3])));
+                        // /enchanted common glow
+                        if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
+                            m.addEnchant(Enchantment.DURABILITY, 1, false);
+                            for (String msg : this.getConfig().getStringList("rarity." + rarity + ".flags")) {
+                                m.addItemFlags(ItemFlag.valueOf(msg));
+                            }
+                        }
 
-                    item.setItemMeta(m);
-                    if (m.hasDisplayName()) {
+                        // Check unbreakable from config
+                        m.setUnbreakable(this.getConfig().getBoolean("rarity." + rarity + ".unbreakable"));
+
+                        item.setItemMeta(m);
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("custom.message") + m.getDisplayName()));
-                    } else {
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("custom.message") + item.getI18NDisplayName()));
+                                this.getConfig().getString("rarity." + rarity + ".success")));
                     }
-
                 }
-                // COMMON RARITY!
-                if (args[0].equalsIgnoreCase("common")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("common.prefixName") + m.getDisplayName() + this.getConfig().getString("common.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("common.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("common.suffixName")));
-                    }
 
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("common.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("common.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("common.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("common.success")));
-                }
-                // UNCOMMON RARITY!
-                if (args[0].equalsIgnoreCase("uncommon")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("uncommon.prefixName") + m.getDisplayName() + this.getConfig().getString("uncommon.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("uncommon.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("uncommon.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("uncommon.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("uncommon.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("uncommon.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("uncommon.success")));
-                }
-                // RARE RARITY!
-                if (args[0].equalsIgnoreCase("rare")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("rare.prefixName") + m.getDisplayName() + this.getConfig().getString("rare.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("rare.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("rare.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("rare.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("rare.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("rare.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("rare.success")));
-                }
-                // EPIC RARITY!
-                if (args[0].equalsIgnoreCase("epic")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("epic.prefixName") + m.getDisplayName() + this.getConfig().getString("epic.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("epic.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("epic.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("epic.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("epic.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("epic.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("epic.success")));
-                }
-                // LEGENDARY RARITY!
-                if (args[0].equalsIgnoreCase("legendary")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("legendary.prefixName") + m.getDisplayName() + this.getConfig().getString("legendary.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("legendary.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("legendary.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("legendary.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("legendary.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("legendary.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("legendary.success")));
-                }
-                // MYTHICAL RARITY!
-                if (args[0].equalsIgnoreCase("mythical")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("mythical.prefixName") + m.getDisplayName() + this.getConfig().getString("mythical.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("mythical.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("mythical.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("mythical.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("mythical.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("mythical.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("mythical.success")));
-                }
-                // DIVINE RARITY!
-                if (args[0].equalsIgnoreCase("divine")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("divine.prefixName") + m.getDisplayName() + this.getConfig().getString("divine.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("divine.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("divine.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("divine.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("divine.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("divine.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("divine.success")));
-                }
-                // SPECIAL RARITY!
-                if (args[0].equalsIgnoreCase("special")) {
-                    ItemMeta m = item.getItemMeta();
-                    // DISPLAY ITEM NAME
-                    if (m.hasDisplayName()) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("special.prefixName") + m.getDisplayName() + this.getConfig().getString("special.suffixName")));
-                    } else {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("special.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("special.suffixName")));
-                    }
-
-                    // DISPLAY ITEM LORE
-                    ArrayList<String> lore = new ArrayList<String>();
-
-                    for (String msg : this.getConfig().getStringList("special.loreName")) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                    }
-                    m.setLore(lore);
-
-                    // /enchanted common glow
-                    if (args.length >= 2 && args[1].equalsIgnoreCase("glow")) {
-                        m.addEnchant(Enchantment.DURABILITY, 1, false);
-                        for (String msg : this.getConfig().getStringList("special.flags")) {
-                            m.addItemFlags(ItemFlag.valueOf(msg));
-                        }
-                    }
-
-                    // Check unbreakable from config
-                    m.setUnbreakable(this.getConfig().getBoolean("special.unbreakable"));
-
-                    item.setItemMeta(m);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("special.success")));
-                }
             }
         }
 
         return false;
     }
 
-  //  @EventHandler
+    // PickupEvent
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // Pickup item all item on ground and set the lore
+    public void onPickUpItem(ItemSpawnEvent event) {
+        ItemStack item = event.getEntity().getItemStack();
+        ItemMeta m = item.getItemMeta();
+        // For Lore
+        if (m.hasLore()) {
+            /// Not set when having lore
+        } else {
+            // Default item pickup
+            ArrayList<String> lore = new ArrayList<String>();
+            for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
+                lore.add(ChatColor.translateAlternateColorCodes('&', msg));
+            }
+            m.setLore(lore);
+            item.setItemMeta(m);
+            /// Add Custom item pickup
+            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                if (item.getType() == Material.valueOf(msg)) {
+                    ArrayList<String> lore2 = new ArrayList<String>();
+                    for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
+                        lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
+                    }
+                    m.setLore(lore2);
+                    item.setItemMeta(m);
+                }
+            }
+        }
+        // For Name
+        if (m.hasDisplayName()) {
+            /// Not set when having name
+        } else {
+            // Default item pickup
+            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                    this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
+            item.setItemMeta(m);
+            /// Add Custom item pickup
+            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                if (item.getType() == Material.valueOf(msg)) {
+                    m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
+                    item.setItemMeta(m);
+                }
+            }
+        }
+    }
+    // InventoryUpdateEvent
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // InventoryUpdateEvent
+    public void onInventoryUpdate(InventoryPickupItemEvent event) { // For Hopper and Dispenser ETC.
+        ItemStack item = event.getItem().getItemStack();
+        ItemMeta m = item.getItemMeta();
+        // For Lore
+        if (m.hasLore()) {
+            /// Not set when having lore
+        } else {
+            // Default item pickup
+            ArrayList<String> lore = new ArrayList<String>();
+            for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
+                lore.add(ChatColor.translateAlternateColorCodes('&', msg));
+            }
+            m.setLore(lore);
+            item.setItemMeta(m);
+            /// Add Custom item pickup
+            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                if (item.getType() == Material.valueOf(msg)) {
+                    ArrayList<String> lore2 = new ArrayList<String>();
+                    for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
+                        lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
+                    }
+                    m.setLore(lore2);
+                    item.setItemMeta(m);
+                }
+            }
+        }
+        // For Name
+        if (m.hasDisplayName()) {
+            /// Not set when having name
+        } else {
+            // Default item pickup
+            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                    this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
+            item.setItemMeta(m);
+            /// Add Custom item pickup
+            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                if (item.getType() == Material.valueOf(msg)) {
+                    m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
+                    item.setItemMeta(m);
+                }
+            }
+        }
+    }
+    // CraftItemEvent
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // CraftItemEvent
+    public void onCraftItem(CraftItemEvent event) {
+        ItemStack item = event.getCurrentItem();
+        ItemMeta m = item.getItemMeta();
+        // For Lore
+        if (m.hasLore()) {
+            /// Not set when having lore
+        } else {
+            // Default item pickup
+            ArrayList<String> lore = new ArrayList<String>();
+            for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
+                lore.add(ChatColor.translateAlternateColorCodes('&', msg));
+            }
+            m.setLore(lore);
+            item.setItemMeta(m);
+            /// Add Custom item pickup
+            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                if (item.getType() == Material.valueOf(msg)) {
+                    ArrayList<String> lore2 = new ArrayList<String>();
+                    for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
+                        lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
+                    }
+                    m.setLore(lore2);
+                    item.setItemMeta(m);
+                }
+            }
+        }
+        // For Name
+        if (m.hasDisplayName()) {
+            /// Not set when having name
+        } else {
+            // Default item pickup
+            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                    this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
+            item.setItemMeta(m);
+            /// Add Custom item pickup
+            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                if (item.getType() == Material.valueOf(msg)) {
+                    m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
+                    item.setItemMeta(m);
+                }
+            }
+        }
+    }
+    // update item name and lore when open inventory
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        Inventory inv = event.getInventory();
+        if (inv.getType() == InventoryType.PLAYER) {
+            return;
+        }
+        for (int i = 0; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
+            if (item == null) {
+                continue;
+            }
+            ItemMeta m = item.getItemMeta();
+            // For Lore
+            if (m.hasLore()) {
+                /// Not set when having lore
+            } else {
+                // Default item pickup
+                ArrayList<String> lore = new ArrayList<String>();
+                for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
+                    lore.add(ChatColor.translateAlternateColorCodes('&', msg));
+                }
+                m.setLore(lore);
+                item.setItemMeta(m);
+                /// Add Custom item pickup
+                for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                    if (item.getType() == Material.valueOf(msg)) {
+                        ArrayList<String> lore2 = new ArrayList<String>();
+                        for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
+                            lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
+                        }
+                        m.setLore(lore2);
+                        item.setItemMeta(m);
+                    }
+                }
+            }
+            // For Name
+            if (m.hasDisplayName()) {
+                /// Not set when having name
+            } else {
+                // Default item pickup
+                m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                        this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
+                item.setItemMeta(m);
+                /// Add Custom item pickup
+                for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
+                    if (item.getType() == Material.valueOf(msg)) {
+                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                                this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
+                        item.setItemMeta(m);
+                    }
+                }
+            }
+        }
+    }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // Blocked Placing of Items have rarity!
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (event.getItemInHand().hasItemMeta()) {
+            // Name of the item in the config
+            if (event.getItemInHand().getItemMeta().hasDisplayName()) {
+                for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                    if (event.getItemInHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+            // Lore of the item in the config
+            for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                if (event.getItemInHand().getItemMeta().hasLore()) {
+                    for (String lore : event.getItemInHand().getItemMeta().getLore()) {
+                        if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+            }
+            // Flags of the item in the config
+            for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                if (event.getItemInHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    } // Blocked Use of Items have rarity!
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getItem() != null) {
+            if (event.getItem().hasItemMeta()) {
+                // Name of the item in the config
+                if (event.getItem().getItemMeta().hasDisplayName()) {
+                    for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                        if (event.getItem().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+                // Lore of the item in the config
+                for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                    if (event.getItem().getItemMeta().hasLore()) {
+                        for (String lore : event.getItem().getItemMeta().getLore()) {
+                            if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                                event.setCancelled(true);
+                            }
+                        }
+                    }
+                }
+                // Flags of the item in the config
+                for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                    if (event.getItem().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+    // Cancel interaction mobs when item have rarity!
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onMobsInteract(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked() instanceof LivingEntity) {
+            if (event.getPlayer().getItemInHand().hasItemMeta()) {
+                // Name of the item in the config
+                if (event.getPlayer().getItemInHand().getItemMeta().hasDisplayName()) {
+                    for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                        if (event.getPlayer().getItemInHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+                // Lore of the item in the config
+                for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                    if (event.getPlayer().getItemInHand().getItemMeta().hasLore()) {
+                        for (String lore : event.getPlayer().getItemInHand().getItemMeta().getLore()) {
+                            if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                                event.setCancelled(true);
+                            }
+                        }
+                    }
+                }
+                // Flags of the item in the config
+                for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                    if (event.getPlayer().getItemInHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
 
 }

@@ -6,23 +6,23 @@ console:
   message: "[RarityLite] You are not player!"
 info:
   message:
-    - "&aRarityLite v1.2.1"
+    - "&aRarityLite v1.3.1"
     - "&r"
     - "&c<Require> &8&l| &6[Optional]"
     - "&a/enchanted help | to see all commands!"
     - "&a/enchanted <rarity> [glow] | make to enchanted"
-    - "&a/enchanted custom [prefix] [suffix] [lore]"
     - "&a/enchanted list | to see all rarity"
     - "&a/enchanted hideflags | to hide flags (enchant, dye, unbreakable, etc.)"
     - "&a/enchanted unbreakable | make item to unbreakable"
+    - "&a/enchanted glow | make item to glow"
     - "&a/enchanted reload | to reload configulation"
     - "&a"
     - "&aExample: &e/enchanted uncommon glow"
     - "&aExample: &e/enchanted custom &4Enchanted &e+1 &4&lSUPREME"
 list:
-  message: "&aRarity List: common, uncommon, rare, epic, legendary, mythical, divine, special"
+  message: "&aRarity List: %rarity%"
 reload:
-  message: "&aRarityLite v1.2.1 Reloaded!"
+  message: "&aRarityLite v1.3.1 Reloaded!"
 hold_item:
   message: "&cPlease hold item to make enchanted!"
 hide_flags:
@@ -37,88 +37,126 @@ hide_flags:
     - HIDE_UNBREAKABLE
 unbreakable:
   message: "&aSuccessfully apply &9&lUNBREAKABLE"
-custom:
-  message: "&aSuccessfully make custom "
 glow:
   message: "&aSuccessfully apply glow to item"
 
-### WARNING YOU CAN NOT ADD MORE RARITY | I WILL DO IT FOR ADD MORE RARITY YOU OWN IN NEXT UPDATE!
-common:
-  prefixName: "&fEnchanted "
-  suffixName: " &r"
-  loreName:
-    - "&f&lCOMMON"
-  success: "&aItem Enchanted to &f&lCOMMON"
-  flags:
+blocked: # blocked item placing has name and lore or flags
+  name:
+    - "&aEnchanted"
+    - "&4MyName"
+  lore: # When you want to blocked placing have lore, you can use this
+    - "&4&lSUPREME"
+    - "&7Mylore"
+    - "&cThis item can't be placing"
+  flags: # When you want to blocked placing have flags, you can use this
+    - HIDE_PLACED_ON
     - HIDE_ENCHANTS
-  unbreakable: false
 
-uncommon:
-  prefixName: "&aEnchanted "
-  suffixName: " &r"
-  loreName:
-    - "&a&lUNCOMMON"
-  success: "&aItem Enchanted to &a&lUNCOMMON"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+pickup: ## Check your blocked first to use this
+  default: # use [] to make it default vanilla item (not set anything)
+    prefixName: "&f"
+    suffixName: "&r"
+    loreName:
+      - "&f&lCOMMON"
+  custom:
+    NETHER_STAR: ## USE MATERIAL ID
+      prefixName: "&6"
+      suffixName: "&r"
+      loreName:
+        - "&6&lLEGENDARY"
+    NETHERITE_INGOT:
+      prefixName: "&9"
+      suffixName: "&r"
+      loreName:
+        - "&9&lRARE"
 
-rare:
-  prefixName: "&9Enchanted "
-  suffixName: " &r"
-  loreName:
-    - "&9&lRARE"
-  success: "&aItem Enchanted to &9&lRARE"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+rarity: ## You can add your own rarity
+  myrarity:
+    prefixName: "&cMyCustomRarity "
+    suffixName: " &r"
+    loreName:
+      - "&c&lCustomRarity"
+    success: "&aItem Enchanted to &c&lCustomRarity"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
 
-epic:
-  prefixName: "&5Enchanted "
-  suffixName: " &r"
-  loreName:
-    - "&5&lEPIC"
-  success: "&aItem Enchanted to &5&lEPIC"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+  common:
+    prefixName: "&fEnchanted "
+    suffixName: " &r"
+    loreName:
+      - "&f&lCOMMON"
+    success: "&aItem Enchanted to &f&lCOMMON"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
 
-legendary:
-  prefixName: "&6Enchanted "
-  suffixName: " &r"
-  loreName:
-    - "&6&lLEGENDARY"
-  success: "&aItem Enchanted to &6&lLEGENDARY"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+  uncommon:
+    prefixName: "&aEnchanted "
+    suffixName: " &r"
+    loreName:
+      - "&a&lUNCOMMON"
+    success: "&aItem Enchanted to &a&lUNCOMMON"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
 
-mythical:
-  prefixName: "&dEnchanted "
-  suffixName: " &r"
-  loreName:
-    - "&d&lMYTHICAL"
-  success: "&aItem Enchanted to &d&lMYTHICAL"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+  rare:
+    prefixName: "&9Enchanted "
+    suffixName: " &r"
+    loreName:
+      - "&9&lRARE"
+    success: "&aItem Enchanted to &9&lRARE"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
 
-divine:
-  prefixName: "&bEnchanted "
-  suffixName: " &r"
-  loreName:
-    - "&b&lDIVINE"
-  success: "&aItem Enchanted to &b&lDIVINE"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+  epic:
+    prefixName: "&5Enchanted "
+    suffixName: " &r"
+    loreName:
+      - "&5&lEPIC"
+    success: "&aItem Enchanted to &5&lEPIC"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
 
-special:
-  prefixName: "&cEnchanted "
-  suffixName: " &r"
-  loreName:
-    - "&c&lSPECIAL"
-  success: "&aItem Enchanted to &c&lSPECIAL"
-  flags:
-    - HIDE_ENCHANTS
-  unbreakable: false
+  legendary:
+    prefixName: "&6Enchanted "
+    suffixName: " &r"
+    loreName:
+      - "&6&lLEGENDARY"
+    success: "&aItem Enchanted to &6&lLEGENDARY"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
+
+  mythical:
+    prefixName: "&dEnchanted "
+    suffixName: " &r"
+    loreName:
+      - "&d&lMYTHICAL"
+    success: "&aItem Enchanted to &d&lMYTHICAL"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
+
+  divine:
+    prefixName: "&bEnchanted "
+    suffixName: " &r"
+    loreName:
+      - "&b&lDIVINE"
+    success: "&aItem Enchanted to &b&lDIVINE"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
+
+  special:
+    prefixName: "&cEnchanted "
+    suffixName: " &r"
+    loreName:
+      - "&c&lSPECIAL"
+    success: "&aItem Enchanted to &c&lSPECIAL"
+    flags:
+      - HIDE_ENCHANTS
+    unbreakable: false
