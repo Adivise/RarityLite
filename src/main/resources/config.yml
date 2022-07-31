@@ -6,25 +6,24 @@ console:
   message: "[RarityLite] You are not player!"
 info:
   message:
-    - "&aRarityLite v1.3.1"
+    - "&aRarityLite v1.4.8"
     - "&r"
     - "&c<Require> &8&l| &6[Optional]"
-    - "&a/enchanted help | to see all commands!"
-    - "&a/enchanted <rarity> [glow] | make to enchanted"
-    - "&a/enchanted list | to see all rarity"
-    - "&a/enchanted hideflags | to hide flags (enchant, dye, unbreakable, etc.)"
-    - "&a/enchanted unbreakable | make item to unbreakable"
-    - "&a/enchanted glow | make item to glow"
-    - "&a/enchanted reload | to reload configulation"
+    - "&a/rtl help | to see all commands!"
+    - "&a/rtl <rarity> [glow] | make item to rarity!"
+    - "&a/rtl list | to see all rarity"
+    - "&a/rtl flag | to hide flags (enchant, dye, unbreakable, etc.)"
+    - "&a/rtl unbreakable | make item to unbreakable"
+    - "&a/rtl glow | make item to glow"
+    - "&a/rtl reload | to reload configulation"
     - "&a"
-    - "&aExample: &e/enchanted uncommon glow"
-    - "&aExample: &e/enchanted custom &4Enchanted &e+1 &4&lSUPREME"
+    - "&aExample | &e/rtl uncommon glow"
 list:
   message: "&aRarity List: %rarity%"
 reload:
-  message: "&aRarityLite v1.3.1 Reloaded!"
+  message: "&aRarityLite v1.4.8 Reloaded!"
 hold_item:
-  message: "&cPlease hold item to make enchanted!"
+  message: "&cPlease hold item to make rarity!"
 hide_flags:
   message: "&aSuccessfully to hide flags!"
   flags:
@@ -40,6 +39,7 @@ unbreakable:
 glow:
   message: "&aSuccessfully apply glow to item"
 
+## This blocked Config ## Effect on anvil, block place, taming, right click
 blocked: # blocked item placing has name and lore or flags
   name:
     - "&aEnchanted"
@@ -52,10 +52,11 @@ blocked: # blocked item placing has name and lore or flags
     - HIDE_PLACED_ON
     - HIDE_ENCHANTS
 
+## THIS pickup Config ## Effect on spawning item, pickup, drop, craft, open chest, etc. (Use give command not working)
 pickup: ## Check your blocked first to use this
-  default: # use [] to make it default vanilla item (not set anything)
-    prefixName: "&f"
-    suffixName: "&r"
+  default: # use [] to make it default vanilla item
+    prefixName: []
+    suffixName: []
     loreName:
       - "&f&lCOMMON"
   custom:

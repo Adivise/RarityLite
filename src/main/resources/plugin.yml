@@ -5,7 +5,9 @@ api-version: 1.19
 authors: [ Adivise ]
 description: this plugins make you easy life to get enchanted items
 commands:
-  enchanted:
+  raritylite:
+    aliases:
+      - rtl
     description: select rarity and enchanted
-    permission: raritylite.enchanted
+    permission: raritylite.admin
     permission-message: You do not have permission.

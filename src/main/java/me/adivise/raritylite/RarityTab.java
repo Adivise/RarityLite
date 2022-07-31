@@ -14,7 +14,7 @@ public class RarityTab implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         if (arguments.isEmpty()) {
             arguments.add("help"); arguments.add("list");
-            arguments.add("unbreakable"); arguments.add("hideflags");
+            arguments.add("unbreakable"); arguments.add("flag");
             arguments.add("reload"); arguments.add("glow");
         }
 

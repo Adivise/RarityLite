@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -30,7 +30,8 @@ public final class Raritylite extends JavaPlugin implements Listener {
         this.saveDefaultConfig();
         this.getServer().getPluginManager().registerEvents(this, this);
 
-        this.getCommand("enchanted").setTabCompleter(new RarityTab());
+        this.getCommand("raritylite").setTabCompleter(new RarityTab());
+        this.getCommand("rtl").setTabCompleter(new RarityTab());
     }
 
     @Override
@@ -38,9 +39,9 @@ public final class Raritylite extends JavaPlugin implements Listener {
         // Plugin shutdown logic
     }
     public boolean onCommand(CommandSender sender, Command command, String label, String [] args) {
-        /// NEED PERMISSION TO USE THIS COMMAND!
-        if (label.equalsIgnoreCase("enchanted")) {
-            if (!sender.hasPermission("raritylite.enchanted")) {
+        /// NEED PERMISSION TO USE THIS COMMAND! /// /raritylite & /rtl
+        if (label.equalsIgnoreCase("raritylite") || label.equalsIgnoreCase("rtl")) {
+            if (!sender.hasPermission("raritylite.admin")) {
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                         this.getConfig().getString("permission.message")));
                 return true;
@@ -103,7 +104,7 @@ public final class Raritylite extends JavaPlugin implements Listener {
                 }
 
                 // /enchanted hideflags
-                if (args[0].equalsIgnoreCase("hideflags")) {
+                if (args[0].equalsIgnoreCase("flag")) {
                     ItemMeta m = item.getItemMeta();
 
                     for (String msg : this.getConfig().getStringList("hide_flags.flags")) {
@@ -179,13 +180,9 @@ public final class Raritylite extends JavaPlugin implements Listener {
         return false;
     }
 
-    // PickupEvent
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // Pickup item all item on ground and set the lore
-    public void onPickUpItem(ItemSpawnEvent event) {
-        ItemStack item = event.getEntity().getItemStack();
-        ItemMeta m = item.getItemMeta();
-        // For Lore
-        if (m.hasLore()) {
+    public void applyLore(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta.hasLore()) {
             /// Not set when having lore
         } else {
             // Default item pickup
@@ -193,231 +190,93 @@ public final class Raritylite extends JavaPlugin implements Listener {
             for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
                 lore.add(ChatColor.translateAlternateColorCodes('&', msg));
             }
-            m.setLore(lore);
-            item.setItemMeta(m);
+            itemMeta.setLore(lore);
+            itemStack.setItemMeta(itemMeta);
             /// Add Custom item pickup
             for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                if (item.getType() == Material.valueOf(msg)) {
+                if (itemStack.getType() == Material.valueOf(msg)) {
                     ArrayList<String> lore2 = new ArrayList<String>();
                     for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
                         lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
                     }
-                    m.setLore(lore2);
-                    item.setItemMeta(m);
+                    itemMeta.setLore(lore2);
+                    itemStack.setItemMeta(itemMeta);
                 }
             }
         }
         // For Name
-        if (m.hasDisplayName()) {
+        if (itemMeta.hasDisplayName()) {
             /// Not set when having name
         } else {
             // Default item pickup
-            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                    this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
-            item.setItemMeta(m);
+            itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                    this.getConfig().getString("pickup.default.prefixName") + itemStack.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
+            itemStack.setItemMeta(itemMeta);
             /// Add Custom item pickup
             for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                if (item.getType() == Material.valueOf(msg)) {
-                    m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
-                    item.setItemMeta(m);
-                }
-            }
-        }
-    }
-    // InventoryUpdateEvent
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // InventoryUpdateEvent
-    public void onInventoryUpdate(InventoryPickupItemEvent event) { // For Hopper and Dispenser ETC.
-        ItemStack item = event.getItem().getItemStack();
-        ItemMeta m = item.getItemMeta();
-        // For Lore
-        if (m.hasLore()) {
-            /// Not set when having lore
-        } else {
-            // Default item pickup
-            ArrayList<String> lore = new ArrayList<String>();
-            for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
-                lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-            }
-            m.setLore(lore);
-            item.setItemMeta(m);
-            /// Add Custom item pickup
-            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                if (item.getType() == Material.valueOf(msg)) {
-                    ArrayList<String> lore2 = new ArrayList<String>();
-                    for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
-                        lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
-                    }
-                    m.setLore(lore2);
-                    item.setItemMeta(m);
-                }
-            }
-        }
-        // For Name
-        if (m.hasDisplayName()) {
-            /// Not set when having name
-        } else {
-            // Default item pickup
-            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                    this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
-            item.setItemMeta(m);
-            /// Add Custom item pickup
-            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                if (item.getType() == Material.valueOf(msg)) {
-                    m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
-                    item.setItemMeta(m);
-                }
-            }
-        }
-    }
-    // CraftItemEvent
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // CraftItemEvent
-    public void onCraftItem(CraftItemEvent event) {
-        ItemStack item = event.getCurrentItem();
-        ItemMeta m = item.getItemMeta();
-        // For Lore
-        if (m.hasLore()) {
-            /// Not set when having lore
-        } else {
-            // Default item pickup
-            ArrayList<String> lore = new ArrayList<String>();
-            for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
-                lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-            }
-            m.setLore(lore);
-            item.setItemMeta(m);
-            /// Add Custom item pickup
-            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                if (item.getType() == Material.valueOf(msg)) {
-                    ArrayList<String> lore2 = new ArrayList<String>();
-                    for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
-                        lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
-                    }
-                    m.setLore(lore2);
-                    item.setItemMeta(m);
-                }
-            }
-        }
-        // For Name
-        if (m.hasDisplayName()) {
-            /// Not set when having name
-        } else {
-            // Default item pickup
-            m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                    this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
-            item.setItemMeta(m);
-            /// Add Custom item pickup
-            for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                if (item.getType() == Material.valueOf(msg)) {
-                    m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
-                    item.setItemMeta(m);
-                }
-            }
-        }
-    }
-    // update item name and lore when open inventory
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        Inventory inv = event.getInventory();
-        if (inv.getType() == InventoryType.PLAYER) {
-            return;
-        }
-        for (int i = 0; i < inv.getSize(); i++) {
-            ItemStack item = inv.getItem(i);
-            if (item == null) {
-                continue;
-            }
-            ItemMeta m = item.getItemMeta();
-            // For Lore
-            if (m.hasLore()) {
-                /// Not set when having lore
-            } else {
-                // Default item pickup
-                ArrayList<String> lore = new ArrayList<String>();
-                for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
-                    lore.add(ChatColor.translateAlternateColorCodes('&', msg));
-                }
-                m.setLore(lore);
-                item.setItemMeta(m);
-                /// Add Custom item pickup
-                for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                    if (item.getType() == Material.valueOf(msg)) {
-                        ArrayList<String> lore2 = new ArrayList<String>();
-                        for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
-                            lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
-                        }
-                        m.setLore(lore2);
-                        item.setItemMeta(m);
-                    }
-                }
-            }
-            // For Name
-            if (m.hasDisplayName()) {
-                /// Not set when having name
-            } else {
-                // Default item pickup
-                m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                        this.getConfig().getString("pickup.default.prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
-                item.setItemMeta(m);
-                /// Add Custom item pickup
-                for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
-                    if (item.getType() == Material.valueOf(msg)) {
-                        m.setDisplayName(ChatColor.translateAlternateColorCodes('&',
-                                this.getConfig().getString("pickup.custom." + msg + ".prefixName") + item.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
-                        item.setItemMeta(m);
-                    }
+                if (itemStack.getType() == Material.valueOf(msg)) {
+                    itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
+                            this.getConfig().getString("pickup.custom." + msg + ".prefixName") + itemStack.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
+                    itemStack.setItemMeta(itemMeta);
                 }
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true) // Blocked Placing of Items have rarity!
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.getItemInHand().hasItemMeta()) {
-            // Name of the item in the config
-            if (event.getItemInHand().getItemMeta().hasDisplayName()) {
-                for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
-                    if (event.getItemInHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
-                        event.setCancelled(true);
-                    }
-                }
-            }
-            // Lore of the item in the config
-            for (String msg : this.getConfig().getStringList("blocked.lore")) {
-                if (event.getItemInHand().getItemMeta().hasLore()) {
-                    for (String lore : event.getItemInHand().getItemMeta().getLore()) {
-                        if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
-                            event.setCancelled(true);
-                        }
-                    }
-                }
-            }
-            // Flags of the item in the config
-            for (String flags : this.getConfig().getStringList("blocked.flags")) {
-                if (event.getItemInHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
-                    event.setCancelled(true);
-                }
+    // Update spawn item event
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPickUpItem(ItemSpawnEvent event) {
+        this.applyLore(event.getEntity().getItemStack());
+    }
+
+    // Update on open something hopper, furnace, etc.
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onOpenUpdate(InventoryPickupItemEvent event) {
+        this.applyLore(event.getItem().getItemStack());
+    }
+
+    // Update on open inventory
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onOpenInventory(InventoryOpenEvent event) { // because "itemStack" is null
+        Inventory inventory = event.getInventory();
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+            if (itemStack != null) {
+                this.applyLore(itemStack);
             }
         }
-    } // Blocked Use of Items have rarity!
+    }
+
+    // PrepareItemCraftEvent
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPrepareItemCraft(PrepareItemCraftEvent event) { // "itemStack" is null when crafting item
+        if (event.getRecipe() != null) {
+            ItemStack itemStack = event.getInventory().getResult();
+            if (itemStack != null) {
+                this.applyLore(itemStack);
+            }
+        }
+    }
+
+    // Prevent block place event
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getItem() != null) {
-            if (event.getItem().hasItemMeta()) {
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+            //// BLOCKED MAIN-HAND ITEM PLACING
+            if (event.getPlayer().getInventory().getItemInMainHand().hasItemMeta()) {
                 // Name of the item in the config
-                if (event.getItem().getItemMeta().hasDisplayName()) {
+                if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasDisplayName()) {
                     for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
-                        if (event.getItem().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                        if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
                             event.setCancelled(true);
                         }
                     }
                 }
                 // Lore of the item in the config
                 for (String msg : this.getConfig().getStringList("blocked.lore")) {
-                    if (event.getItem().getItemMeta().hasLore()) {
-                        for (String lore : event.getItem().getItemMeta().getLore()) {
+                    if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasLore()) {
+                        for (String lore : event.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore()) {
                             if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
                                 event.setCancelled(true);
                             }
@@ -426,30 +285,26 @@ public final class Raritylite extends JavaPlugin implements Listener {
                 }
                 // Flags of the item in the config
                 for (String flags : this.getConfig().getStringList("blocked.flags")) {
-                    if (event.getItem().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                    if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
                         event.setCancelled(true);
                     }
                 }
             }
-        }
-    }
-    // Cancel interaction mobs when item have rarity!
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onMobsInteract(PlayerInteractEntityEvent event) {
-        if (event.getRightClicked() instanceof LivingEntity) {
-            if (event.getPlayer().getItemInHand().hasItemMeta()) {
+
+            //// BLOCKED OFF-HAND ITEM PLACING
+            if (event.getPlayer().getInventory().getItemInOffHand().hasItemMeta()) {
                 // Name of the item in the config
-                if (event.getPlayer().getItemInHand().getItemMeta().hasDisplayName()) {
+                if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().hasDisplayName()) {
                     for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
-                        if (event.getPlayer().getItemInHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                        if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
                             event.setCancelled(true);
                         }
                     }
                 }
                 // Lore of the item in the config
                 for (String msg : this.getConfig().getStringList("blocked.lore")) {
-                    if (event.getPlayer().getItemInHand().getItemMeta().hasLore()) {
-                        for (String lore : event.getPlayer().getItemInHand().getItemMeta().getLore()) {
+                    if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().hasLore()) {
+                        for (String lore : event.getPlayer().getInventory().getItemInOffHand().getItemMeta().getLore()) {
                             if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
                                 event.setCancelled(true);
                             }
@@ -458,7 +313,7 @@ public final class Raritylite extends JavaPlugin implements Listener {
                 }
                 // Flags of the item in the config
                 for (String flags : this.getConfig().getStringList("blocked.flags")) {
-                    if (event.getPlayer().getItemInHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                    if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
                         event.setCancelled(true);
                     }
                 }
@@ -466,4 +321,117 @@ public final class Raritylite extends JavaPlugin implements Listener {
         }
     }
 
+    // Prevent blocked use in anvil
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onAnvilUse(PrepareAnvilEvent event) {
+        if (event.getInventory().getItem(0) != null) {
+            if (event.getInventory().getItem(0).hasItemMeta()) {
+                for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                    if (event.getInventory().getItem(0).getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                        event.setResult(new ItemStack(Material.AIR));
+                    }
+                }
+            }
+            for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                if (event.getInventory().getItem(0).getItemMeta().hasLore()) {
+                    for (String lore : event.getInventory().getItem(0).getItemMeta().getLore()) {
+                        if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setResult(new ItemStack(Material.AIR));
+                        }
+                    }
+                }
+            }
+            for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                if (event.getInventory().getItem(0).getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                    event.setResult(new ItemStack(Material.AIR));
+                }
+            }
+        }
+        if (event.getInventory().getItem(1) != null) {
+            if (event.getInventory().getItem(1).hasItemMeta()) {
+                for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                    if (event.getInventory().getItem(1).getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                        event.setResult(new ItemStack(Material.AIR));
+                    }
+                }
+            }
+            for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                if (event.getInventory().getItem(1).getItemMeta().hasLore()) {
+                    for (String lore : event.getInventory().getItem(1).getItemMeta().getLore()) {
+                        if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setResult(new ItemStack(Material.AIR));
+                        }
+                    }
+                }
+            }
+            for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                if (event.getInventory().getItem(1).getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                    event.setResult(new ItemStack(Material.AIR));
+                }
+            }
+        }
+    }
+
+    // Prevent interact to mobs event
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked() instanceof LivingEntity) {
+
+            //// BLOCKED MAIN-HAND ITEM TAMING
+            if (event.getPlayer().getInventory().getItemInMainHand().hasItemMeta()) {
+                // Name of the item in the config
+                if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasDisplayName()) {
+                    for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                        if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+                // Lore of the item in the config
+                for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                    if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasLore()) {
+                        for (String lore : event.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore()) {
+                            if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                                event.setCancelled(true);
+                            }
+                        }
+                    }
+                }
+                // Flags of the item in the config
+                for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                    if (event.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+
+            //// BLOCKED OFF-HAND ITEM TAMING
+            if (event.getPlayer().getInventory().getItemInOffHand().hasItemMeta()) {
+                // Name of the item in the config
+                if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().hasDisplayName()) {
+                    for (String msg : this.getConfig().getStringList("blocked.name")) { // Name of the item in the config
+                        if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().getDisplayName().contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                            event.setCancelled(true);
+                        }
+                    }
+                    // Lore of the item in the config
+                    for (String msg : this.getConfig().getStringList("blocked.lore")) {
+                        if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().hasLore()) {
+                            for (String lore : event.getPlayer().getInventory().getItemInOffHand().getItemMeta().getLore()) {
+                                if (lore.contains(ChatColor.translateAlternateColorCodes('&', msg))) {
+                                    event.setCancelled(true);
+                                }
+                            }
+                        }
+                    }
+                    // Flags of the item in the config
+                    for (String flags : this.getConfig().getStringList("blocked.flags")) {
+                        if (event.getPlayer().getInventory().getItemInOffHand().getItemMeta().hasItemFlag(ItemFlag.valueOf(flags))) {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
