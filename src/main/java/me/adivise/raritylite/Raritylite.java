@@ -190,6 +190,24 @@ public final class Raritylite extends JavaPlugin implements Listener {
             for (String msg : this.getConfig().getStringList("pickup.default.loreName")) {
                 lore.add(ChatColor.translateAlternateColorCodes('&', msg));
             }
+            /// Apply glowing boolean
+            if (this.getConfig().getBoolean("pickup.default.glowing")) {
+                itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                for (String msg : this.getConfig().getStringList("pickup.default.flags")) {
+                    itemMeta.addItemFlags(ItemFlag.valueOf(msg));
+                }
+            }
+            /// Apply unbreakable boolean
+            if (this.getConfig().getBoolean("pickup.default.unbreakable")) {
+                for (String msg : this.getConfig().getStringList("pickup.default.flags")) {
+                    itemMeta.addItemFlags(ItemFlag.valueOf(msg));
+                }
+            }
+            /// Apply flags boolean
+            for (String msg : this.getConfig().getStringList("pickup.default.flags")) {
+                itemMeta.addItemFlags(ItemFlag.valueOf(msg));
+            }
+
             itemMeta.setLore(lore);
             itemStack.setItemMeta(itemMeta);
             /// Add Custom item pickup
@@ -199,6 +217,24 @@ public final class Raritylite extends JavaPlugin implements Listener {
                     for (String msg2 : this.getConfig().getStringList("pickup.custom." + msg + ".loreName")) {
                         lore2.add(ChatColor.translateAlternateColorCodes('&', msg2));
                     }
+                    /// Apply glowing boolean
+                    if (this.getConfig().getBoolean("pickup.custom." + msg + ".glowing")) {
+                        itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                        for (String glowing : this.getConfig().getStringList("pickup.custom." + msg + ".flags")) {
+                            itemMeta.addItemFlags(ItemFlag.valueOf(glowing));
+                        }
+                    }
+                    /// Apply unbreakable boolean
+                    if (this.getConfig().getBoolean("pickup.custom." + msg + ".unbreakable")) {
+                        for (String unbreak : this.getConfig().getStringList("pickup.custom." + msg + ".flags")) {
+                            itemMeta.addItemFlags(ItemFlag.valueOf(unbreak));
+                        }
+                    }
+                    /// Apply flags boolean
+                    for (String flaging : this.getConfig().getStringList("pickup.custom." + msg + ".flags")) {
+                        itemMeta.addItemFlags(ItemFlag.valueOf(flaging));
+                    }
+
                     itemMeta.setLore(lore2);
                     itemStack.setItemMeta(itemMeta);
                 }
@@ -211,6 +247,24 @@ public final class Raritylite extends JavaPlugin implements Listener {
             // Default item pickup
             itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
                     this.getConfig().getString("pickup.default.prefixName") + itemStack.getI18NDisplayName() + this.getConfig().getString("pickup.default.suffixName")));
+            /// Apply glowing boolean
+            if (this.getConfig().getBoolean("pickup.default.glowing")) {
+                itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                for (String msg : this.getConfig().getStringList("pickup.default.flags")) {
+                    itemMeta.addItemFlags(ItemFlag.valueOf(msg));
+                }
+            }
+            /// Apply unbreakable boolean
+            if (this.getConfig().getBoolean("pickup.default.unbreakable")) {
+                for (String msg : this.getConfig().getStringList("pickup.default.flags")) {
+                    itemMeta.addItemFlags(ItemFlag.valueOf(msg));
+                }
+            }
+            /// Apply flags boolean
+            for (String msg : this.getConfig().getStringList("pickup.default.flags")) {
+                itemMeta.addItemFlags(ItemFlag.valueOf(msg));
+            }
+
             itemStack.setItemMeta(itemMeta);
             /// Add Custom item pickup
             for (String msg : this.getConfig().getConfigurationSection("pickup.custom").getKeys(false)) {
@@ -218,6 +272,23 @@ public final class Raritylite extends JavaPlugin implements Listener {
                     itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&',
                             this.getConfig().getString("pickup.custom." + msg + ".prefixName") + itemStack.getI18NDisplayName() + this.getConfig().getString("pickup.custom." + msg + ".suffixName")));
                     itemStack.setItemMeta(itemMeta);
+                }
+                /// Apply glowing boolean
+                if (this.getConfig().getBoolean("pickup.custom." + msg + ".glowing")) {
+                    itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                    for (String glowing : this.getConfig().getStringList("pickup.custom." + msg + ".flags")) {
+                        itemMeta.addItemFlags(ItemFlag.valueOf(glowing));
+                    }
+                }
+                /// Apply unbreakable boolean
+                if (this.getConfig().getBoolean("pickup.custom." + msg + ".unbreakable")) {
+                    for (String unbreak : this.getConfig().getStringList("pickup.custom." + msg + ".flags")) {
+                        itemMeta.addItemFlags(ItemFlag.valueOf(unbreak));
+                    }
+                }
+                /// Apply flags boolean
+                for (String flaging : this.getConfig().getStringList("pickup.custom." + msg + ".flags")) {
+                    itemMeta.addItemFlags(ItemFlag.valueOf(flaging));
                 }
             }
         }

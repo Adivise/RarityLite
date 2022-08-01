@@ -6,7 +6,7 @@ console:
   message: "[RarityLite] You are not player!"
 info:
   message:
-    - "&aRarityLite v1.4.8"
+    - "&aRarityLite v1.5.1"
     - "&r"
     - "&c<Require> &8&l| &6[Optional]"
     - "&a/rtl help | to see all commands!"
@@ -21,7 +21,7 @@ info:
 list:
   message: "&aRarity List: %rarity%"
 reload:
-  message: "&aRarityLite v1.4.8 Reloaded!"
+  message: "&aRarityLite v1.5.1 Reloaded!"
 hold_item:
   message: "&cPlease hold item to make rarity!"
 hide_flags:
@@ -39,39 +39,51 @@ unbreakable:
 glow:
   message: "&aSuccessfully apply glow to item"
 
-## This blocked Config ## Effect on anvil, block place, taming, right click
-blocked: # blocked item placing has name and lore or flags
-  name:
+## Blocked Config ## Effect on anvil, block place, taming, right click
+blocked:
+  name: # Blocked prevent has name?
     - "&aEnchanted"
     - "&4MyName"
-  lore: # When you want to blocked placing have lore, you can use this
+  lore: # Blocked prevent has lore?
     - "&4&lSUPREME"
     - "&7Mylore"
     - "&cThis item can't be placing"
-  flags: # When you want to blocked placing have flags, you can use this
+  flags: # Blocked prevent has flags?
     - HIDE_PLACED_ON
     - HIDE_ENCHANTS
 
-## THIS pickup Config ## Effect on spawning item, pickup, drop, craft, open chest, etc. (Use give command not working)
+## Pick Up Config ## Effect on spawning item, pickup, drop, craft, open chest, etc. (Use give command not working)
 pickup: ## Check your blocked first to use this
-  default: # use [] to make it default vanilla item
-    prefixName: []
-    suffixName: []
+  default:
+    prefixName: "&f"
+    suffixName: "&r"
     loreName:
       - "&f&lCOMMON"
-  custom:
-    NETHER_STAR: ## USE MATERIAL ID
+    glowing: false # please check blocked config first to use this
+    unbreakable: false
+    flags: [] # please check blocked config first to use this
+  ## USE MATERIAL ID
+  custom: # Example here!
+    NETHER_STAR:
       prefixName: "&6"
       suffixName: "&r"
       loreName:
         - "&6&lLEGENDARY"
+      glowing: false # i think nether star is already glowing!
+      unbreakable: false
+      flags: []
+
     NETHERITE_INGOT:
-      prefixName: "&9"
+      prefixName: "&9Enchanted " # Enchanted Netherite Ingot
       suffixName: "&r"
       loreName:
         - "&9&lRARE"
+      glowing: true
+      unbreakable: false
+      flags:
+        - HIDE_ENCHANTS # can't use this? go check blocked config first!
 
-rarity: ## You can add your own rarity
+rarity: ## You can add your own rarity or remove!
   myrarity:
     prefixName: "&cMyCustomRarity "
     suffixName: " &r"
